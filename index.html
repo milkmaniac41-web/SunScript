@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dialogue Script Recorder</title>
+<style>
+body {
+font-family: Courier New, monospace;
+margin: 0;
+background: #f3f3f3;
+display: flex;
+}
+
+#sidebar {
+width: 220px;
+background: #222;
+color: white;
+padding: 15px;
+min-height: 100vh;
+}
+
+.characterCard {
+background: #333;
+padding: 10px;
+margin-bottom: 10px;
+border-radius: 8px;
+cursor: grab;
+text-align: center;
+}
+
+.characterCard img {
+width: 55px;
+height: 55px;
+border-radius: 50%;
+object-fit: cover;
+background: #777;
+display: block;
+margin: 0 auto 5px;
+}
+
+#trash {
+margin-top: 25px;
+padding: 20px;
+background: darkred;
+text-align: center;
+border-radius: 10px;
+font-weight: bold;
+}
+
+main {
+flex: 1;
+padding: 25px;
+}
+
+h1 {
+text-align: center;
+}
+
+#plaque {
+background: black;
+color: white;
+padding: 15px;
+text-align: center;
+font-size: 24px;
+font-weight: bold;
+border-radius: 10px;
+margin-bottom: 20px;
+}
+
+#switchBtn {
+background: red;
+color: white;
+font-size: 30px;
+font-weight: bold;
+padding: 25px 60px;
+border: none;
+border-radius: 15px;
+display: block;
+margin: 20px auto;
+cursor: pointer;
+}
+
+.controls {
+text-align: center;
+margin-bottom: 20px;
+}
+
+button {
+padding: 10px 15px;
+margin: 5px;
+font-size: 15px;
+cursor: pointer;
+}
+
+#script {
+background: white;
+max-width: 850px;
+margin: auto;
+padding: 35px;
+min-height: 600px;
+box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}
+
+.block {
+margin-bottom: 30px;
+}
+
+.name {
+font-weight: bold;
+text-transform: uppercase;
+}
+
+.line {
+margin-left: 40px;
+margin-top: 8px;
+white-space: pre-wrap;
+}
+
+.narration {
+font-weight: bold;
+font-style: italic;
+margin: 25px 0;
+}
+
+.editing .line,
+.editing .narration {
+outline: 2px dashed #888;
+padding: 5px;
+}
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+<h2>Characters</h2>
+<div id="characterList"></div>
+<button onclick="addCharacter()">Add Character</button>
+<div id="trash">Drag Here To Delete</div>
+</aside>
+
+<main>
+<h1>Dialogue Script Recorder</h1>
+
+<div id="plaque">Current Character: JOHN</div>
+
+<button id="switchBtn" onclick="switchCharacter()">SWITCH CHARACTER</button>
+
+<div class="controls">
+<button onclick="startRecording()">Start Recording</button>
+<button onclick="stopRecording()">Stop Recording</button>
+<button onclick="toggleNarration()">Narration</button>
+<button onclick="toggleEdit()">Edit Script</button>
+<button onclick="clearScript()">Clear Script</button>
+</div>
+
+<div id="script"></div>
+</main>
+
+<script>
+let characters = [
+{ name: "John", image: "" },
+{ name: "Riley", image: "" }
+];
+
+let currentCharacter = 0;
+let recognition;
+let isRecording = false;
+let narrationMode = false;
+let editMode = false;
+let currentBlock = null;
+let draggedCharacterIndex = null;
+
+const scriptDiv = document.getElementById("script");
+const plaque = document.getElementById("plaque");
+const characterList = document.getElementById("characterList");
+const trash = document.getElementById("trash");
+
+function updatePlaque() {
+if (narrationMode) {
+plaque.textContent = "Current Mode: NARRATION";
+} else {
+plaque.textContent =
+"Current Character: " + characters[currentCharacter].name.toUpperCase();
+}
+}
+
+function drawCharacters() {
+characterList.innerHTML = "";
+
+characters.forEach((character, index) => {
+const card = document.createElement("div");
+card.className = "characterCard";
+card.draggable = true;
+
+card.innerHTML = `
+<img src="${character.image || ""}" alt="">
+<strong>${character.name}</strong>
+<br>
+<input type="file" accept="image/*" onchange="addImage(event, ${index})">
+`;
+
+card.onclick = () => {
+currentCharacter = index;
+narrationMode = false;
+currentBlock = null;
+updatePlaque();
+};
+
+card.ondragstart = () => {
+draggedCharacterIndex = index;
+};
+
+characterList.appendChild(card);
+});
+}
+
+function addImage(event, index) {
+const file = event.target.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(e) {
+characters[index].image = e.target.result;
+drawCharacters();
+};
+
+reader.readAsDataURL(file);
+}
+
+trash.ondragover = function(event) {
+event.preventDefault();
+};
+
+trash.ondrop = function() {
+if (draggedCharacterIndex !== null && characters.length > 1) {
+characters.splice(draggedCharacterIndex, 1);
+
+if (currentCharacter >= characters.length) {
+currentCharacter = 0;
+}
+
+draggedCharacterIndex = null;
+drawCharacters();
+updatePlaque();
+}
+};
+
+function addCharacter() {
+const name = prompt("Enter character name:");
+
+if (name && name.trim() !== "") {
+characters.push({ name: name.trim(), image: "" });
+currentCharacter = characters.length - 1;
+narrationMode = false;
+currentBlock = null;
+drawCharacters();
+updatePlaque();
+}
+}
+
+function switchCharacter() {
+narrationMode = false;
+currentCharacter = (currentCharacter + 1) % characters.length;
+currentBlock = null;
+updatePlaque();
+}
+
+function toggleNarration() {
+narrationMode = !narrationMode;
+currentBlock = null;
+updatePlaque();
+}
+
+function fixGrammar(text) {
+text = text.trim();
+
+if (!text) return "";
+
+text = text.charAt(0).toUpperCase() + text.slice(1);
+
+text = text.replace(/\bi\b/g, "I");
+text = text.replace(/\s+/g, " ");
+
+if (!/[.!?]$/.test(text)) {
+text += ".";
+}
+
+return text;
+}
+
+function addDialogue(text) {
+text = fixGrammar(text);
+
+if (!text) return;
+
+if (narrationMode) {
+const narration = document.createElement("div");
+narration.className = "narration";
+narration.contentEditable = editMode;
+narration.textContent = "( *" + text + "* )";
+scriptDiv.appendChild(narration);
+return;
+}
+
+if (!currentBlock) {
+currentBlock = document.createElement("div");
+currentBlock.className = "block";
+
+currentBlock.innerHTML = `
+<div class="name">${characters[currentCharacter].name}:</div>
+<div class="line" contenteditable="${editMode}"></div>
+`;
+
+scriptDiv.appendChild(currentBlock);
+}
+
+const line = currentBlock.querySelector(".line");
+
+if (line.textContent.length > 0) {
+line.textContent += " ";
+}
+
+line.textContent += text;
+}
+
+function toggleEdit() {
+editMode = !editMode;
+
+document.querySelectorAll(".line, .narration").forEach(element => {
+element.contentEditable = editMode;
+});
+
+scriptDiv.classList.toggle("editing", editMode);
+}
+
+function clearScript() {
+if (confirm("Clear the whole script?")) {
+scriptDiv.innerHTML = "";
+currentBlock = null;
+}
+}
+
+function startRecording() {
+const SpeechRecognition =
+window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+alert("Use Google Chrome for voice recording.");
+return;
+}
+
+recognition = new SpeechRecognition();
+recognition.lang = "en-US";
+recognition.continuous = true;
+recognition.interimResults = false;
+
+recognition.onresult = function(event) {
+const transcript =
+event.results[event.results.length - 1][0].transcript;
+
+addDialogue(transcript);
+};
+
+recognition.start();
+isRecording = true;
+}
+
+function stopRecording() {
+if (recognition && isRecording) {
+recognition.stop();
+isRecording = false;
+}
+}
+
+drawCharacters();
+updatePlaque();
+</script>
+
+</body>
+</html>
