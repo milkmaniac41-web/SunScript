@@ -2,199 +2,187 @@
 <html>
 <head>
 <title>Dialogue Script Recorder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
-font-family: Courier New, monospace;
 margin: 0;
-background: #f3f3f3;
-display: flex;
+font-family: "Courier New", monospace;
+background: #f2f2f2;
+color: #111;
 }
 
-#sidebar {
-width: 220px;
-background: #222;
+header {
+background: #111;
 color: white;
 padding: 15px;
-min-height: 100vh;
-}
-
-.characterCard {
-background: #333;
-padding: 10px;
-margin-bottom: 10px;
-border-radius: 8px;
-cursor: grab;
 text-align: center;
 }
 
-.characterCard img {
+#app {
+max-width: 900px;
+margin: auto;
+padding: 15px;
+}
+
+#characterBar {
+display: flex;
+gap: 10px;
+overflow-x: auto;
+padding: 10px 0;
+margin-bottom: 10px;
+}
+
+.character {
+background: white;
+border: 2px solid #ccc;
+border-radius: 10px;
+padding: 8px;
+min-width: 100px;
+text-align: center;
+cursor: pointer;
+}
+
+.character.active {
+border-color: red;
+background: #ffecec;
+}
+
+.character img {
 width: 55px;
 height: 55px;
 border-radius: 50%;
 object-fit: cover;
-background: #777;
+background: #ddd;
 display: block;
-margin: 0 auto 5px;
+margin: auto;
 }
 
-#trash {
-margin-top: 25px;
-padding: 20px;
-background: darkred;
-text-align: center;
-border-radius: 10px;
-font-weight: bold;
-}
-
-main {
-flex: 1;
-padding: 25px;
-}
-
-h1 {
-text-align: center;
+.character input {
+width: 90px;
+font-size: 10px;
+margin-top: 5px;
 }
 
 #plaque {
 background: black;
 color: white;
-padding: 15px;
-text-align: center;
-font-size: 24px;
+font-size: 22px;
 font-weight: bold;
-border-radius: 10px;
-margin-bottom: 20px;
+text-align: center;
+padding: 15px;
+border-radius: 12px;
+margin: 10px 0;
 }
 
 #switchBtn {
+width: 100%;
 background: red;
 color: white;
-font-size: 30px;
-font-weight: bold;
-padding: 25px 60px;
 border: none;
 border-radius: 15px;
-display: block;
-margin: 20px auto;
+padding: 25px;
+font-size: 28px;
+font-weight: bold;
 cursor: pointer;
+margin-bottom: 15px;
 }
 
 .controls {
-text-align: center;
-margin-bottom: 20px;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+justify-content: center;
+margin-bottom: 15px;
 }
 
 button {
-padding: 10px 15px;
-margin: 5px;
+padding: 10px 14px;
 font-size: 15px;
+border-radius: 8px;
+border: 1px solid #999;
 cursor: pointer;
 }
 
 #script {
 background: white;
-max-width: 850px;
-margin: auto;
-padding: 35px;
-min-height: 600px;
-box-shadow: 0 0 10px rgba(0,0,0,0.25);
+min-height: 500px;
+padding: 25px;
+border-radius: 12px;
+box-shadow: 0 0 8px rgba(0,0,0,0.2);
 }
 
 .block {
-margin-bottom: 30px;
+margin-bottom: 28px;
 }
 
 .name {
 font-weight: bold;
 text-transform: uppercase;
+margin-bottom: 8px;
 }
 
 .line {
-margin-left: 40px;
-margin-top: 8px;
+margin-left: 35px;
 white-space: pre-wrap;
+line-height: 1.5;
 }
 
 .narration {
 font-weight: bold;
 font-style: italic;
 margin: 25px 0;
+text-align: center;
 }
 
 .editing .line,
 .editing .narration {
-outline: 2px dashed #888;
+outline: 2px dashed #777;
 padding: 5px;
-}
-@media (max-width: 700px) {
-body {
-display: block;
-}
-
-#sidebar {
-width: auto;
-min-height: auto;
-display: flex;
-overflow-x: auto;
-gap: 10px;
-align-items: center;
-}
-
-#sidebar h2 {
-display: none;
-}
-
-.characterCard {
-min-width: 120px;
 }
 
 #trash {
-min-width: 140px;
-margin-top: 0;
-}
-
-main {
+background: darkred;
+color: white;
+text-align: center;
 padding: 15px;
+border-radius: 10px;
+margin-bottom: 15px;
+font-weight: bold;
 }
 
-h1 {
+@media (max-width: 600px) {
+header h1 {
 font-size: 22px;
 }
 
 #switchBtn {
-width: 100%;
 font-size: 22px;
-padding: 20px 10px;
-}
-
-.controls {
-display: flex;
-overflow-x: auto;
-gap: 8px;
-}
-
-.controls button {
-white-space: nowrap;
+padding: 22px;
 }
 
 #script {
-width: auto;
-min-height: 400px;
-padding: 20px;
+padding: 18px;
+}
+
+.line {
+margin-left: 15px;
+}
 }
 </style>
 </head>
+
 <body>
 
-<aside id="sidebar">
-<h2>Characters</h2>
-<div id="characterList"></div>
-<button onclick="addCharacter()">Add Character</button>
-<div id="trash">Drag Here To Delete</div>
-</aside>
-
-<main>
+<header>
 <h1>Dialogue Script Recorder</h1>
+</header>
+
+<div id="app">
+
+<div id="characterBar"></div>
+
+<div id="trash">Drag Character Here To Remove From Rotation</div>
 
 <div id="plaque">Current Character: JOHN</div>
 
@@ -205,11 +193,13 @@ padding: 20px;
 <button onclick="stopRecording()">Stop Recording</button>
 <button onclick="toggleNarration()">Narration</button>
 <button onclick="toggleEdit()">Edit Script</button>
+<button onclick="addCharacter()">Add Character</button>
 <button onclick="clearScript()">Clear Script</button>
 </div>
 
 <div id="script"></div>
-</main>
+
+</div>
 
 <script>
 let characters = [
@@ -223,12 +213,105 @@ let isRecording = false;
 let narrationMode = false;
 let editMode = false;
 let currentBlock = null;
-let draggedCharacterIndex = null;
+let lastSpeechTime = null;
+let draggedIndex = null;
 
-const scriptDiv = document.getElementById("script");
+const characterBar = document.getElementById("characterBar");
 const plaque = document.getElementById("plaque");
-const characterList = document.getElementById("characterList");
+const script = document.getElementById("script");
 const trash = document.getElementById("trash");
+
+function saveData() {
+localStorage.setItem("characters", JSON.stringify(characters));
+localStorage.setItem("script", script.innerHTML);
+}
+
+function loadData() {
+const savedCharacters = localStorage.getItem("characters");
+const savedScript = localStorage.getItem("script");
+
+if (savedCharacters) {
+characters = JSON.parse(savedCharacters);
+}
+
+if (savedScript) {
+script.innerHTML = savedScript;
+}
+}
+
+function drawCharacters() {
+characterBar.innerHTML = "";
+
+characters.forEach((character, index) => {
+const card = document.createElement("div");
+card.className = "character";
+card.draggable = true;
+
+if (index === currentCharacter && !narrationMode) {
+card.classList.add("active");
+}
+
+card.innerHTML = `
+<img src="${character.image || ""}">
+<strong>${character.name}</strong>
+<input type="file" accept="image/*">
+`;
+
+card.onclick = function() {
+currentCharacter = index;
+narrationMode = false;
+currentBlock = null;
+updatePlaque();
+drawCharacters();
+};
+
+card.ondragstart = function() {
+draggedIndex = index;
+};
+
+const input = card.querySelector("input");
+input.onclick = function(event) {
+event.stopPropagation();
+};
+
+input.onchange = function(event) {
+const file = event.target.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(e) {
+characters[index].image = e.target.result;
+drawCharacters();
+saveData();
+};
+
+reader.readAsDataURL(file);
+};
+
+characterBar.appendChild(card);
+});
+}
+
+trash.ondragover = function(event) {
+event.preventDefault();
+};
+
+trash.ondrop = function() {
+if (draggedIndex !== null && characters.length > 1) {
+characters.splice(draggedIndex, 1);
+
+if (currentCharacter >= characters.length) {
+currentCharacter = 0;
+}
+
+draggedIndex = null;
+currentBlock = null;
+drawCharacters();
+updatePlaque();
+saveData();
+}
+};
 
 function updatePlaque() {
 if (narrationMode) {
@@ -238,68 +321,6 @@ plaque.textContent =
 "Current Character: " + characters[currentCharacter].name.toUpperCase();
 }
 }
-
-function drawCharacters() {
-characterList.innerHTML = "";
-
-characters.forEach((character, index) => {
-const card = document.createElement("div");
-card.className = "characterCard";
-card.draggable = true;
-
-card.innerHTML = `
-<img src="${character.image || ""}" alt="">
-<strong>${character.name}</strong>
-<br>
-<input type="file" accept="image/*" onchange="addImage(event, ${index})">
-`;
-
-card.onclick = () => {
-currentCharacter = index;
-narrationMode = false;
-currentBlock = null;
-updatePlaque();
-};
-
-card.ondragstart = () => {
-draggedCharacterIndex = index;
-};
-
-characterList.appendChild(card);
-});
-}
-
-function addImage(event, index) {
-const file = event.target.files[0];
-if (!file) return;
-
-const reader = new FileReader();
-
-reader.onload = function(e) {
-characters[index].image = e.target.result;
-drawCharacters();
-};
-
-reader.readAsDataURL(file);
-}
-
-trash.ondragover = function(event) {
-event.preventDefault();
-};
-
-trash.ondrop = function() {
-if (draggedCharacterIndex !== null && characters.length > 1) {
-characters.splice(draggedCharacterIndex, 1);
-
-if (currentCharacter >= characters.length) {
-currentCharacter = 0;
-}
-
-draggedCharacterIndex = null;
-drawCharacters();
-updatePlaque();
-}
-};
 
 function addCharacter() {
 const name = prompt("Enter character name:");
@@ -311,6 +332,7 @@ narrationMode = false;
 currentBlock = null;
 drawCharacters();
 updatePlaque();
+saveData();
 }
 }
 
@@ -318,43 +340,72 @@ function switchCharacter() {
 narrationMode = false;
 currentCharacter = (currentCharacter + 1) % characters.length;
 currentBlock = null;
+lastSpeechTime = null;
+drawCharacters();
 updatePlaque();
 }
 
 function toggleNarration() {
 narrationMode = !narrationMode;
 currentBlock = null;
+lastSpeechTime = null;
+drawCharacters();
 updatePlaque();
+}
+
+function toggleEdit() {
+editMode = !editMode;
+
+document.querySelectorAll(".line, .narration").forEach(element => {
+element.contentEditable = editMode;
+});
+
+script.classList.toggle("editing", editMode);
+saveData();
 }
 
 function fixGrammar(text) {
 text = text.trim();
-
 if (!text) return "";
-
-text = text.charAt(0).toUpperCase() + text.slice(1);
 
 text = text.replace(/\bi\b/g, "I");
 text = text.replace(/\s+/g, " ");
 
-if (!/[.!?]$/.test(text)) {
-text += ".";
-}
-
 return text;
 }
 
-function addDialogue(text) {
-text = fixGrammar(text);
+function capitalizeAfterPeriod(text) {
+return text.replace(/(^\s*\w|[.!?]\s+\w)/g, function(match) {
+return match.toUpperCase();
+});
+}
 
+function addDialogue(rawText) {
+let text = fixGrammar(rawText);
 if (!text) return;
+
+const now = Date.now();
+let punctuation = "";
+
+if (lastSpeechTime !== null) {
+const pause = now - lastSpeechTime;
+
+if (pause > 2000) {
+punctuation = ". ";
+} else {
+punctuation = ", ";
+}
+}
+
+lastSpeechTime = now;
 
 if (narrationMode) {
 const narration = document.createElement("div");
 narration.className = "narration";
 narration.contentEditable = editMode;
 narration.textContent = "( *" + text + "* )";
-scriptDiv.appendChild(narration);
+script.appendChild(narration);
+saveData();
 return;
 }
 
@@ -367,33 +418,24 @@ currentBlock.innerHTML = `
 <div class="line" contenteditable="${editMode}"></div>
 `;
 
-scriptDiv.appendChild(currentBlock);
+script.appendChild(currentBlock);
 }
 
 const line = currentBlock.querySelector(".line");
 
-if (line.textContent.length > 0) {
-line.textContent += " ";
+if (line.textContent.length === 0) {
+line.textContent = text;
+} else {
+line.textContent += punctuation + text;
 }
 
-line.textContent += text;
+line.textContent = capitalizeAfterPeriod(line.textContent);
+
+if (!/[.!?]$/.test(line.textContent)) {
+line.textContent += ".";
 }
 
-function toggleEdit() {
-editMode = !editMode;
-
-document.querySelectorAll(".line, .narration").forEach(element => {
-element.contentEditable = editMode;
-});
-
-scriptDiv.classList.toggle("editing", editMode);
-}
-
-function clearScript() {
-if (confirm("Clear the whole script?")) {
-scriptDiv.innerHTML = "";
-currentBlock = null;
-}
+saveData();
 }
 
 function startRecording() {
@@ -417,17 +459,38 @@ event.results[event.results.length - 1][0].transcript;
 addDialogue(transcript);
 };
 
+recognition.onend = function() {
+if (isRecording) {
+recognition.start();
+}
+};
+
 recognition.start();
 isRecording = true;
 }
 
 function stopRecording() {
-if (recognition && isRecording) {
-recognition.stop();
 isRecording = false;
+
+if (recognition) {
+recognition.stop();
+}
+
+currentBlock = null;
+lastSpeechTime = null;
+}
+
+function clearScript() {
+if (confirm("Clear the whole script?")) {
+script.innerHTML = "";
+currentBlock = null;
+localStorage.removeItem("script");
 }
 }
 
+script.addEventListener("input", saveData);
+
+loadData();
 drawCharacters();
 updatePlaque();
 </script>
