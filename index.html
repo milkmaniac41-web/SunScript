@@ -126,6 +126,62 @@ margin: 25px 0;
 outline: 2px dashed #888;
 padding: 5px;
 }
+@media (max-width: 700px) {
+body {
+display: block;
+}
+
+#sidebar {
+width: auto;
+min-height: auto;
+display: flex;
+overflow-x: auto;
+gap: 10px;
+align-items: center;
+}
+
+#sidebar h2 {
+display: none;
+}
+
+.characterCard {
+min-width: 120px;
+}
+
+#trash {
+min-width: 140px;
+margin-top: 0;
+}
+
+main {
+padding: 15px;
+}
+
+h1 {
+font-size: 22px;
+}
+
+#switchBtn {
+width: 100%;
+font-size: 22px;
+padding: 20px 10px;
+}
+
+.controls {
+display: flex;
+overflow-x: auto;
+gap: 8px;
+}
+
+.controls button {
+white-space: nowrap;
+}
+
+#script {
+width: auto;
+min-height: 400px;
+padding: 20px;
+}
 </style>
 </head>
 <body>
