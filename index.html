@@ -665,32 +665,38 @@ drawCharacters();
 // HOLD CHARACTER
 
 
-card.addEventListener(
-"touchstart",
-function(){
-
+function startHold(){
 
 holdTimer =
 setTimeout(function(){
 
+selectedCharacter = index;
 
-selectedCharacter =
-index;
-
-
-// vibration
+// Vibrates on supported devices
 navigator.vibrate?.(50);
-
 
 openMenu();
 
-
 },700);
 
+}
 
-});
+
+// Phone hold
+card.addEventListener(
+"touchstart",
+startHold
+);
 
 
+// Laptop mouse hold
+card.addEventListener(
+"mousedown",
+startHold
+);
+
+
+// Cancel phone hold
 card.addEventListener(
 "touchend",
 function(){
@@ -700,8 +706,29 @@ clearTimeout(holdTimer);
 });
 
 
+// Cancel if finger moves
 card.addEventListener(
 "touchmove",
+function(){
+
+clearTimeout(holdTimer);
+
+});
+
+
+// Cancel mouse hold when released
+card.addEventListener(
+"mouseup",
+function(){
+
+clearTimeout(holdTimer);
+
+});
+
+
+// Cancel if mouse leaves card
+card.addEventListener(
+"mouseleave",
 function(){
 
 clearTimeout(holdTimer);
